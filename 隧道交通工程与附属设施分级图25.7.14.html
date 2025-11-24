@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>隧道交通工程分级计算系统</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        /* 使用 Grid 布局 */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .input-area {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .canvas-area {
+            border: 1px solid #d1d1d1;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 24px; /* 增大标题字体大小 */
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 16px; /* 增大表格文字大小 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+            padding: 12px; /* 增大表格单元格内边距 */
+            border: 1px solid #2980b9;
+            text-align: center;
+        }
+        
+        td {
+            padding: 12px; /* 增大表格单元格内边距 */
+            border: 1px solid #e0e0e0;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #edf7ff;
+        }
+
+        input {
+            width: 100px; /* 增大输入框宽度 */
+            padding: 10px; /* 增大输入框内边距 */
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 16px; /* 增大输入框文字大小 */
+            background: #ffffff;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        #gradeCanvas {
+            border: 1px solid #d1d1d1;
+            border-radius: 8px;
+            width: 100%; /* 使画布宽度自适应容器 */
+            height: auto; /* 使画布高度自适应 */
+            background: #ffffff;
+        }
+
+        #exportButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px; /* 增大按钮内边距 */
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            font-size: 16px; /* 增大按钮文字大小 */
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #exportButton:hover {
+            background: #219653;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 16px; /* 增大输入行文字大小 */
+            padding: 10px;
+            background: #f1f8ff;
+            border-radius: 6px;
+        }
+
+        .input-row label {
+            margin-right: 10px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .chart-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px; /* 增大图表标题字体大小 */
+            font-weight: bold;
+            color: #2c3e50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .creator {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #7f8c8d;
+            font-size: 14px; /* 增大创作者信息字体大小 */
+            background: rgba(255,255,255,0.8);
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .add-btn,
+        .remove-btn {
+            padding: 8px 16px; /* 增大按钮内边距 */
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 16px; /* 增大按钮文字大小 */
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .add-btn:hover,
+        .remove-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+        }
+
+        .toggle-btn {
+            padding: 8px 12px;
+            background: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .toggle-btn.active {
+            background: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+        
+        .custom-year-input {
+            width: 80px;
+            margin-right: 5px;
+        }
+        
+        .custom-year-btn {
+            padding: 5px 10px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .custom-year-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .paste-hint {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+    <!-- 引入 xlsx 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-area">
+            <h2>隧道参数输入
+                <button onclick="clearAllInputs()" class="add-btn">清空</button>
+            </h2>
+            <div class="input-row">
+                <label for="laneCount">单洞车道数：</label>
+                <input type="number" id="laneCount" value="2" oninput="updateGraph()">
+                <label for="openingYear">开通年：</label>
+                <input type="number" id="openingYear" oninput="updateYearLabels(); calculateTraffic()">
+                <label for="directionCoefficient">系数：</label>
+                <input type="number" id="directionCoefficient" value="0.5" oninput="calculateTraffic()">
+            </div>
+            <div class="input-row">
+                <button onclick="addForecastRow()" class="add-btn">+预测年</button>
+                <span class="paste-hint">支持粘贴多个预测年数值（空格/逗号/分号分隔）</span>
+            </div>
+            <div id="trafficForecastInputs">
+            </div>
+            <div class="input-row">
+                <button onclick="addTunnelRow()" class="add-btn">+隧道</button>
+                <span class="paste-hint">支持粘贴多个交通量数值（空格/逗号/分号分隔）</span>
+            </div>
+            <!-- 新增的切换按钮区域 -->
+            <div class="input-row">
+                <label>显示/隐藏年份：</label>
+                <button id="toggle5" class="toggle-btn active" onclick="toggleYear(5)">5年</button>
+                <button id="toggle7" class="toggle-btn active" onclick="toggleYear(7)">7年</button>
+                <button id="toggle10" class="toggle-btn active" onclick="toggleYear(10)">10年</button>
+                <button id="toggle15" class="toggle-btn active" onclick="toggleYear(15)">15年</button>
+                <button id="toggle20" class="toggle-btn active" onclick="toggleYear(20)">20年</button>
+                <button id="toggleCustom" class="toggle-btn active" onclick="toggleYear('custom')">自定义年</button>
+                <input type="number" id="customYearInput" class="custom-year-input" placeholder="年数">
+                <button onclick="addCustomYear()" class="custom-year-btn">添加自定义年</button>
+            </div>
+            <table id="mainTable">
+                <tbody><tr>
+                    <th>名称</th>
+                    <th>长度</th>
+                    <th id="q5Label">5年交通量</th>
+                    <th id="q7Label">7年交通量</th>
+                    <th id="q10Label">10年交通量</th>
+                    <th id="q15Label">15年交通量</th>
+                    <th id="q20Label">20年交通量</th>
+                    <th id="qCustomLabel">自定义年交通量</th>
+                    <th>第5年等级</th>
+                    <th>第7年等级</th>
+                    <th>第10年等级</th>
+                    <th>第15年等级</th>
+                    <th>第20年等级</th>
+                    <th id="gradeCustomLabel">自定义年等级</th>
+                    <th>操作</th>
+                </tr>
+            </tbody></table>
+        </div>
+        <div class="canvas-area">
+            <div class="chart-title">隧道交通工程与附属设施分级图</div>
+            <canvas id="gradeCanvas" width="1660" height="1200"></canvas>
+        </div>
+    </div>
+    <button id="exportButton" onclick="exportToXLSX()">导出为 XLSX</button>
+    <div class="creator">制作by哈龙_Random</div>
+
+    <script>
+        // 存储年份显示状态
+        const yearVisibility = {
+            5: true,
+            7: true,
+            10: true,
+            15: true,
+            20: true,
+            custom: true
+        };
+        
+        // 存储自定义年份
+        const customYears = [];
+        let currentCustomYear = '';
+
+        const canvas = document.getElementById('gradeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 定义固定点坐标，调整d7坐标为(10000, 50000)
+        const points = {
+            d1: [100, 50000],
+            d2: [150, 50000],
+            d3: [300, 50000],
+            d4: [450, 50000],
+            d5: [600, 50000],
+            d6: [900, 50000],
+            d7: [10000, 50000],
+            q: [100, 37500],
+            p: [100, 25000],
+            c1: [500, 7500],
+            c2: [1000, 7500],
+            c3: [3000, 7500],
+            c4: [6000, 7500],
+            b1: [500, 5000],
+            b2: [1000, 5000],
+            b3: [3000, 5000],
+            b4: [6000, 5000],
+            o: [100, 1000],
+            a1: [500, 1000],
+            a2: [1000, 1000],
+            a3: [3000, 1000],
+            a4: [6000, 1000],
+            a5: [10000, 1000]
+        };
+
+        // 区域定义
+        const regions = {
+            '2': {
+                D: ['o', 'a1', 'b1', 'p', 'o'],
+                C: ['a1', 'a2', 'b2', 'd1', 'p', 'b1', 'a1'],
+                B: ['a2', 'a3', 'b3', 'd3', 'd1', 'b2', 'a2'],
+                A: ['a3', 'a4', 'b4', 'd5', 'd3', 'b3', 'a3'],
+                'A+': ['a4', 'a5', 'd7', 'd5', 'b4', 'a4']
+            },
+            '>2': {
+                D: ['o', 'a1', 'c1', 'q', 'o'],
+                C: ['a1', 'a2', 'c2', 'd2', 'd1', 'q', 'c1', 'a1'],
+                B: ['a2', 'a3', 'c3', 'd4', 'd2', 'c2', 'a2'],
+                A: ['a3', 'a4', 'c4', 'd6', 'd4', 'c3', 'a3'],
+                'A+': ['a4', 'a5', 'd7', 'd6', 'c4', 'a4']
+            }
+        };
+
+        // 绘制图形
+        function drawGraph(tunnels) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制坐标系
+            drawAxes();
+
+            // 获取单洞车道数
+            const laneCount = parseInt(document.getElementById('laneCount').value);
+            const regionDef = regions[laneCount > 2 ? '>2' : '2'];
+            const colors = {
+                D: 'rgba(255, 204, 204, 0.7)', // 浅红色
+                C: 'rgba(204, 255, 204, 0.7)', // 浅绿色
+                B: 'rgba(204, 229, 255, 0.7)', // 浅蓝色
+                A: 'rgba(255, 255, 204, 0.7)', // 浅黄色
+                'A+': 'rgba(229, 204, 255, 0.7)' // 浅紫色
+            };
+            // 使用更鲜明的颜色
+            const contrastColors = {
+                D: '#e74c3c',
+                C: '#27ae60',
+                B: '#3498db',
+                A: '#f39c12',
+                'A+': '#9b59b6'
+            };
+
+            // 绘制等级区域
+            Object.entries(regionDef).forEach(([grade, pointsList]) => {
+                ctx.fillStyle = colors[grade];
+                const path = new Path2D();
+                pointsList.forEach((p, i) => {
+                    const [x, y] = points[p];
+                    if (i === 0) path.moveTo(mapX(x), mapY(y));
+                    else path.lineTo(mapX(x), mapY(y));
+                });
+                ctx.fill(path);
+                ctx.strokeStyle = contrastColors[grade];
+                ctx.lineWidth = 2;
+                ctx.stroke(path);
+            });
+
+            // 绘制虚线
+            drawGridLines();
+
+            // 绘制隧道点
+            tunnels.forEach(tunnel => {
+                // 固定年份
+                [
+                    [5, tunnel.q5, tunnel.grade5],
+                    [7, tunnel.q7, tunnel.grade7],
+                    [10, tunnel.q10, tunnel.grade10],
+                    [15, tunnel.q15, tunnel.grade15],
+                    [20, tunnel.q20, tunnel.grade20]
+                ].forEach(([year, q, grade]) => {
+                    // 检查年份是否应该显示
+                    if (yearVisibility[year] &&!isNaN(tunnel.length) &&!isNaN(q)) {
+                        ctx.fillStyle = q >= 37500 ? '#e74c3c' : '#3498db';
+                        ctx.beginPath();
+                        ctx.arc(mapX(tunnel.length), mapY(q), 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillText(`${tunnel.name}-${year}-${grade}`, mapX(tunnel.length) + 10, mapY(q) - 5);
+                    }
+                });
+                
+                // 自定义年份
+                if (yearVisibility.custom && currentCustomYear && tunnel.qCustom !== undefined && tunnel.gradeCustom !== undefined) {
+                    const q = tunnel.qCustom;
+                    const grade = tunnel.gradeCustom;
+                    if (!isNaN(tunnel.length) && !isNaN(q)) {
+                        // 使用三角形表示自定义年份
+                        ctx.fillStyle = q >= 37500 ? '#e74c3c' : '#3498db';
+                        ctx.beginPath();
+                        const x = mapX(tunnel.length);
+                        const y = mapY(q);
+                        ctx.moveTo(x, y - 6);
+                        ctx.lineTo(x - 6, y + 6);
+                        ctx.lineTo(x + 6, y + 6);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillText(`${tunnel.name}-${currentCustomYear}-${grade}`, x + 10, y - 5);
+                    }
+                }
+            });
+
+            // 绘制等级文本
+            Object.entries(regionDef).forEach(([grade, pointsList]) => {
+                const path = new Path2D();
+                pointsList.forEach((p, i) => {
+                    const [x, y] = points[p];
+                    if (i === 0) path.moveTo(mapX(x), mapY(y));
+                    else path.lineTo(mapX(x), mapY(y));
+                });
+                const centroid = getCentroid(path);
+                ctx.fillStyle = contrastColors[grade];
+                ctx.font = 'bold 24px Arial';
+                ctx.fillText(grade, centroid.x, centroid.y);
+            });
+        }
+
+        // 坐标映射函数
+        // 左右各增加30像素
+        const leftPadding = 90;
+        const topPadding = 30;
+        const rightPadding = 60;
+
+        function mapX(x) {
+            return (x / 10000) * (canvas.width - leftPadding - rightPadding) + leftPadding;
+        }
+
+        function mapY(y) {
+            return canvas.height - topPadding - ((y / 60000) * (canvas.height - topPadding - 25));
+        }
+
+        // 绘制坐标系
+        function drawAxes() {
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(leftPadding, canvas.height - 25);
+            ctx.lineTo(canvas.width - rightPadding, canvas.height - 25);
+            ctx.stroke();
+            // Y轴，限制高度为对应50000的坐标
+            ctx.beginPath();
+            ctx.moveTo(leftPadding, mapY(50000));
+            ctx.lineTo(leftPadding, canvas.height - 25);
+            ctx.stroke();
+
+            // 计算自适应字体大小
+            const fontSize = Math.max(canvas.width * 0.015, 8); // 最小字体大小为 8px
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.fillStyle = '#2c3e50';
+
+            // 下方横轴显示指定刻度，与"隧道长度(m)"标签水平对齐
+            const xTicksBottom = [100, 500, 1000, 3000, 6000, 10000];
+            const xLabelY = canvas.height - 5;
+            xTicksBottom.forEach(x => {
+                ctx.fillText(x, mapX(x) - 10, xLabelY);
+            });
+
+            // 上方横轴显示指定刻度，进一步上移，靠近颜色区域上方且不被覆盖，上下交错排布
+            const xTicksTop = [150, 300, 450, 600, 900, 10000];
+            const topY = mapY(50000) - 25; // 进一步上移y坐标
+            const offset = 15; // 交错偏移量
+            xTicksTop.forEach((x, index) => {
+                const y = index % 2 === 0 ? topY : topY + offset;
+                ctx.fillText(x, mapX(x) - 10, y);
+            });
+
+            // 纵轴显示指定刻度，整体左移 50 像素
+            const yTicks = [1000, 5000, 7500, 25000, 50000];
+            const yOffset = 80; // 加大左移偏移量到 80（原 30 + 新增 50）
+            yTicks.forEach(y => {
+                ctx.fillText(y, leftPadding - yOffset, mapY(y) + 5);
+            });
+
+            // 坐标轴标签
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillText('隧道长度(m)', canvas.width - 50 - 260, canvas.height - 5);
+            ctx.save();
+            ctx.translate(leftPadding - 20, 30 + 30 + 450);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('交通量(pcu/d)', 0, 0);
+            ctx.restore();
+        }
+
+        // 绘制虚线网格
+        function drawGridLines() {
+            ctx.strokeStyle = '#95a5a6';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 1;
+
+            // 横轴对应的虚线
+            const xTicks = [100, 500, 1000, 3000, 6000, 10000];
+            xTicks.forEach(x => {
+                const startY = mapY(1000);
+                const endY = mapY(50000);
+                ctx.beginPath();
+                ctx.moveTo(mapX(x), startY);
+                ctx.lineTo(mapX(x), endY);
+                ctx.stroke();
+            });
+
+            // 纵轴对应的虚线
+            const yTicks = [1000, 5000, 7500, 25000, 50000];
+            yTicks.forEach(y => {
+                const startX = mapX(100);
+                const endX = mapX(10000);
+                ctx.beginPath();
+                ctx.moveTo(startX, mapY(y));
+                ctx.lineTo(endX, mapY(y));
+                ctx.stroke();
+            });
+
+            ctx.setLineDash([]);
+        }
+
+        // 计算等级
+        function calculateGrades() {
+            const tunnels = [];
+            const laneCount = parseInt(document.getElementById('laneCount').value);
+            document.querySelectorAll('tr').forEach((row, i) => {
+                if (i === 0) return;
+                const name = row.querySelector('.name').value;
+                const length = parseInt(row.querySelector('.length').value);
+
+                // 固定年份
+                [
+                    ['q5', 'grade5', 5],
+                    ['q7', 'grade7', 7],
+                    ['q10', 'grade10', 10],
+                    ['q15', 'grade15', 15],
+                    ['q20', 'grade20', 20]
+                ].forEach(([qKey, gradeKey, year]) => {
+                    // 检查年份是否应该计算等级
+                    if (yearVisibility[year]) {
+                        const q = parseInt(row.querySelector(`.${qKey}`).value);
+                        if (!isNaN(length) &&!isNaN(q)) {
+                            const grade = getGrade(length, q, laneCount);
+                            row.querySelector(`.${gradeKey}`).textContent = grade;
+                        } else {
+                            row.querySelector(`.${gradeKey}`).textContent = '';
+                        }
+                    }
+                });
+                
+                // 自定义年份
+                if (yearVisibility.custom && currentCustomYear) {
+                    const q = parseInt(row.querySelector('.qCustom').value);
+                    if (!isNaN(length) &&!isNaN(q)) {
+                        const grade = getGrade(length, q, laneCount);
+                        row.querySelector('.gradeCustom').textContent = grade;
+                    } else {
+                        row.querySelector('.gradeCustom').textContent = '';
+                    }
+                }
+
+                // 收集数据
+                const tunnelData = {
+                    name,
+                    length,
+                    q5: parseInt(row.querySelector('.q5').value),
+                    q7: parseInt(row.querySelector('.q7').value),
+                    q10: parseInt(row.querySelector('.q10').value),
+                    q15: parseInt(row.querySelector('.q15').value),
+                    q20: parseInt(row.querySelector('.q20').value),
+                    grade5: row.querySelector('.grade5').textContent,
+                    grade7: row.querySelector('.grade7').textContent,
+                    grade10: row.querySelector('.grade10').textContent,
+                    grade15: row.querySelector('.grade15').textContent,
+                    grade20: row.querySelector('.grade20').textContent
+                };
+                
+                // 添加自定义年份数据
+                if (yearVisibility.custom && currentCustomYear) {
+                    tunnelData.qCustom = parseInt(row.querySelector('.qCustom').value);
+                    tunnelData.gradeCustom = row.querySelector('.gradeCustom').textContent;
+                }
+
+                tunnels.push(tunnelData);
+            });
+            return tunnels;
+        }
+
+        function getGrade(length, q, laneCount) {
+            const regionDef = regions[laneCount > 2 ? '>2' : '2'];
+            for (const [grade, pointsList] of Object.entries(regionDef)) {
+                if (isPointInPolygon([length, q], pointsList.map(p => points[p]))) {
+                    return grade;
+                }
+            }
+            return '未知';
+        }
+
+        // 点在多边形内判断算法
+        function isPointInPolygon(point, polygon) {
+            let inside = false;
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i][0],
+                    yi = polygon[i][1];
+                const xj = polygon[j][0],
+                    yj = polygon[j][1];
+                const intersect = ((yi > point[1]) !== (yj > point[1])) &&
+                    (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        // 获取多边形质心
+        function getCentroid(path) {
+            const points = [];
+            const subpathCount = path.numberOfSubpaths;
+            for (let i = 0; i < subpathCount; i++) {
+                const subpathLength = path.getSubpathLength(i);
+                for (let j = 0; j < subpathLength; j++) {
+                    const point = path.getSubpathPoint(i, j);
+                    points.push(point);
+                }
+            }
+            const avgX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
+            const avgY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
+            return {
+                x: avgX,
+                y: avgY
+            };
+        }
+
+        // 导出为 XLSX 文件 - 修复版本
+        function exportToXLSX() {
+            const table = document.getElementById('mainTable');
+            const rows = table.querySelectorAll('tr');
+            
+            if (rows.length <= 1) {
+                alert('没有数据可供导出，请先输入隧道信息。');
+                return;
+            }
+            
+            const data = [];
+            const headers = [];
+            
+            // 获取表头
+            const headerRow = rows[0];
+            headerRow.querySelectorAll('th').forEach((th, j) => {
+                // 只导出可见的列
+                if (th.style.display !== 'none') {
+                    headers.push(th.textContent);
+                }
+            });
+            data.push(headers);
+            
+            // 获取数据行
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const rowData = [];
+                const cells = row.querySelectorAll('td');
+                
+                // 遍历表头对应的列
+                headerRow.querySelectorAll('th').forEach((th, j) => {
+                    if (th.style.display !== 'none') {
+                        const cell = cells[j];
+                        if (cell) {
+                            if (cell.querySelector('input')) {
+                                rowData.push(cell.querySelector('input').value);
+                            } else {
+                                rowData.push(cell.textContent);
+                            }
+                        }
+                    }
+                });
+                
+                data.push(rowData);
+            }
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '隧道数据');
+            XLSX.writeFile(wb, 'tunnel_grades.xlsx');
+        }
+
+        // 更新图形
+        function updateGraph() {
+            const tunnels = calculateGrades();
+            drawGraph(tunnels);
+        }
+
+        // 根据开通年更新表头年份
+        function updateYearLabels() {
+            const openingYear = parseInt(document.getElementById('openingYear').value);
+            if (!isNaN(openingYear)) {
+                document.getElementById('q5Label').textContent = `${openingYear + 5}年交通量`;
+                document.getElementById('q7Label').textContent = `${openingYear + 7}年交通量`;
+                document.getElementById('q10Label').textContent = `${openingYear + 10}年交通量`;
+                document.getElementById('q15Label').textContent = `${openingYear + 15}年交通量`;
+                document.getElementById('q20Label').textContent = `${openingYear + 20}年交通量`;
+                if (currentCustomYear) {
+                    document.getElementById('qCustomLabel').textContent = `${openingYear + parseInt(currentCustomYear)}年交通量`;
+                }
+            }
+        }
+
+        // 使用指数插值法计算交通量
+        function calculateTraffic() {
+            const openingYear = parseInt(document.getElementById('openingYear').value);
+            const directionCoefficient = parseFloat(document.getElementById('directionCoefficient').value);
+            const targetYear5 = openingYear + 5;
+            const targetYear7 = openingYear + 7;
+            const targetYear10 = openingYear + 10;
+            const targetYear15 = openingYear + 15;
+            const targetYear20 = openingYear + 20;
+
+            const trafficData = [];
+            document.querySelectorAll('.traffic-year').forEach((yearInput, index) => {
+                const year = parseInt(yearInput.value);
+                const traffic = parseInt(document.querySelectorAll('.traffic-forecast')[index].value);
+                if (!isNaN(year) &&!isNaN(traffic)) {
+                    trafficData.push({ year, traffic });
+                }
+            });
+
+            trafficData.sort((a, b) => a.year - b.year);
+
+            const calculateExponentialInterpolation = (targetYear) => {
+                if (trafficData.length === 0) return null;
+                if (targetYear < trafficData[0].year) {
+                    const current = trafficData[0];
+                    const next = trafficData[1] || current;
+                    const b = Math.pow(next.traffic / current.traffic, 1 / (next.year - current.year));
+                    const a = current.traffic / Math.pow(b, current.year);
+                    return Math.ceil(a * Math.pow(b, targetYear)); // 向上取整
+                }
+                if (targetYear > trafficData[trafficData.length - 1].year) {
+                    const current = trafficData[trafficData.length - 2] || trafficData[trafficData.length - 1];
+                    const next = trafficData[trafficData.length - 1];
+                    const b = Math.pow(next.traffic / current.traffic, 1 / (next.year - current.year));
+                    const a = current.traffic / Math.pow(b, current.year);
+                    return Math.ceil(a * Math.pow(b, targetYear)); // 向上取整
+                }
+                for (let i = 0; i < trafficData.length - 1; i++) {
+                    const current = trafficData[i];
+                    const next = trafficData[i + 1];
+                    if (current.year <= targetYear && targetYear <= next.year) {
+                        const b = Math.pow(next.traffic / current.traffic, 1 / (next.year - current.year));
+                        const a = current.traffic / Math.pow(b, current.year);
+                        return Math.ceil(a * Math.pow(b, targetYear)); // 向上取整
+                    }
+                }
+                return null;
+            };
+
+            const q5 = calculateExponentialInterpolation(targetYear5);
+            const q7 = calculateExponentialInterpolation(targetYear7);
+            const q10 = calculateExponentialInterpolation(targetYear10);
+            const q15 = calculateExponentialInterpolation(targetYear15);
+            const q20 = calculateExponentialInterpolation(targetYear20);
+
+            const singleHoleQ5 = q5!== null ? Math.ceil(q5 * directionCoefficient) : null; // 向上取整
+            const singleHoleQ7 = q7!== null ? Math.ceil(q7 * directionCoefficient) : null; // 向上取整
+            const singleHoleQ10 = q10!== null ? Math.ceil(q10 * directionCoefficient) : null; // 向上取整
+            const singleHoleQ15 = q15!== null ? Math.ceil(q15 * directionCoefficient) : null; // 向上取整
+            const singleHoleQ20 = q20!== null ? Math.ceil(q20 * directionCoefficient) : null; // 向上取整
+
+            if (singleHoleQ5!== null) {
+                document.querySelectorAll('.q5').forEach(input => {
+                    input.value = singleHoleQ5;
+                    const row = input.closest('tr');
+                    const length = parseInt(row.querySelector('.length').value);
+                    if (!isNaN(length) && yearVisibility[5]) {
+                        const laneCount = parseInt(document.getElementById('laneCount').value);
+                        const grade = getGrade(length, singleHoleQ5, laneCount);
+                        row.querySelector('.grade5').textContent = grade;
+                    }
+                });
+            }
+            if (singleHoleQ7!== null) {
+                document.querySelectorAll('.q7').forEach(input => {
+                    input.value = singleHoleQ7;
+                    const row = input.closest('tr');
+                    const length = parseInt(row.querySelector('.length').value);
+                    if (!isNaN(length) && yearVisibility[7]) {
+                        const laneCount = parseInt(document.getElementById('laneCount').value);
+                        const grade = getGrade(length, singleHoleQ7, laneCount);
+                        row.querySelector('.grade7').textContent = grade;
+                    }
+                });
+            }
+            if (singleHoleQ10!== null) {
+                document.querySelectorAll('.q10').forEach(input => {
+                    input.value = singleHoleQ10;
+                    const row = input.closest('tr');
+                    const length = parseInt(row.querySelector('.length').value);
+                    if (!isNaN(length) && yearVisibility[10]) {
+                        const laneCount = parseInt(document.getElementById('laneCount').value);
+                        const grade = getGrade(length, singleHoleQ10, laneCount);
+                        row.querySelector('.grade10').textContent = grade;
+                    }
+                });
+            }
+            if (singleHoleQ15!== null) {
+                document.querySelectorAll('.q15').forEach(input => {
+                    input.value = singleHoleQ15;
+                    const row = input.closest('tr');
+                    const length = parseInt(row.querySelector('.length').value);
+                    if (!isNaN(length) && yearVisibility[15]) {
+                        const laneCount = parseInt(document.getElementById('laneCount').value);
+                        const grade = getGrade(length, singleHoleQ15, laneCount);
+                        row.querySelector('.grade15').textContent = grade;
+                    }
+                });
+            }
+            if (singleHoleQ20!== null) {
+                document.querySelectorAll('.q20').forEach(input => {
+                    input.value = singleHoleQ20;
+                    const row = input.closest('tr');
+                    const length = parseInt(row.querySelector('.length').value);
+                    if (!isNaN(length) && yearVisibility[20]) {
+                        const laneCount = parseInt(document.getElementById('laneCount').value);
+                        const grade = getGrade(length, singleHoleQ20, laneCount);
+                        row.querySelector('.grade20').textContent = grade;
+                    }
+                });
+            }
+            
+            // 计算自定义年份的交通量
+            if (currentCustomYear) {
+                const targetYear = openingYear + parseInt(currentCustomYear);
+                const q = calculateExponentialInterpolation(targetYear);
+                const singleHoleQ = q !== null ? Math.ceil(q * directionCoefficient) : null;
+                if (singleHoleQ !== null) {
+                    document.querySelectorAll('.qCustom').forEach(input => {
+                        input.value = singleHoleQ;
+                        const row = input.closest('tr');
+                        const length = parseInt(row.querySelector('.length').value);
+                        if (!isNaN(length) && yearVisibility.custom) {
+                            const laneCount = parseInt(document.getElementById('laneCount').value);
+                            const grade = getGrade(length, singleHoleQ, laneCount);
+                            row.querySelector('.gradeCustom').textContent = grade;
+                        }
+                    });
+                }
+            }
+
+            updateGraph();
+        }
+
+        // 切换年份显示/隐藏
+        function toggleYear(year) {
+            if (year === 'custom') {
+                yearVisibility.custom = !yearVisibility.custom;
+                const btn = document.getElementById('toggleCustom');
+                btn.classList.toggle('active', yearVisibility.custom);
+            } else {
+                yearVisibility[year] = !yearVisibility[year];
+                const btn = document.getElementById(`toggle${year}`);
+                btn.classList.toggle('active', yearVisibility[year]);
+            }
+
+            // 隐藏/显示表格列
+            const headers = document.querySelectorAll('table th');
+            const dataCells = document.querySelectorAll('table td');
+
+            // 查找对应年份的列索引
+            let qIndex, gradeIndex;
+            switch (year) {
+                case 5:
+                    qIndex = 2;
+                    gradeIndex = 8;
+                    break;
+                case 7:
+                    qIndex = 3;
+                    gradeIndex = 9;
+                    break;
+                case 10:
+                    qIndex = 4;
+                    gradeIndex = 10;
+                    break;
+                case 15:
+                    qIndex = 5;
+                    gradeIndex = 11;
+                    break;
+                case 20:
+                    qIndex = 6;
+                    gradeIndex = 12;
+                    break;
+                case 'custom':
+                    qIndex = 7;
+                    gradeIndex = 13;
+                    break;
+            }
+
+            // 隐藏/显示表头
+            if (headers[qIndex]) {
+                headers[qIndex].style.display = yearVisibility[year] ? '' : 'none';
+            }
+            if (headers[gradeIndex]) {
+                headers[gradeIndex].style.display = yearVisibility[year] ? '' : 'none';
+            }
+
+            // 隐藏/显示数据单元格
+            document.querySelectorAll('tr').forEach((row, i) => {
+                if (i > 0) { // 跳过表头行
+                    const cells = row.querySelectorAll('td');
+                    if (cells[qIndex]) {
+                        cells[qIndex].style.display = yearVisibility[year] ? '' : 'none';
+                    }
+                    if (cells[gradeIndex]) {
+                        cells[gradeIndex].style.display = yearVisibility[year] ? '' : 'none';
+                    }
+                }
+            });
+
+            // 更新图形
+            updateGraph();
+        }
+        
+        // 添加自定义年份
+        function addCustomYear() {
+            const yearInput = document.getElementById('customYearInput');
+            const year = yearInput.value.trim();
+            
+            if (!year) {
+                alert('请输入年份');
+                return;
+            }
+            
+            if (isNaN(year) || parseInt(year) <= 0) {
+                alert('请输入有效的年份数字');
+                return;
+            }
+            
+            currentCustomYear = year;
+            
+            // 更新年份标签
+            const openingYear = parseInt(document.getElementById('openingYear').value);
+            if (!isNaN(openingYear)) {
+                document.getElementById('qCustomLabel').textContent = `${openingYear + parseInt(year)}年交通量`;
+            }
+            
+            // 重新计算交通量
+            calculateTraffic();
+        }
+
+        let forecastRowCount = 0;
+
+        const forecastRowTemplate = `
+<div class="input-row">
+    <input type="number" class="traffic-year" oninput="calculateTraffic()">
+    <label>年</label>
+    <label>交通量</label>
+    <input type="number" class="traffic-forecast" oninput="calculateTraffic()">
+    <button class="remove-btn" onclick="removeThisRow(this)">-</button>
+</div>
+`;
+
+        function addForecastRow() {
+            const container = document.getElementById('trafficForecastInputs');
+            const newRow = document.createElement('div');
+            newRow.innerHTML = forecastRowTemplate;
+            container.appendChild(newRow);
+            forecastRowCount++;
+            calculateTraffic();
+        }
+
+        function removeThisRow(btn) {
+            const row = btn.closest('.input-row');
+            row.remove();
+            forecastRowCount = Math.max(0, forecastRowCount - 1);
+            calculateTraffic();
+        }
+
+        let tunnelRowCount = 0;
+
+        const tunnelRowTemplate = `
+<tr>
+    <td><input type="text" class="name" oninput="updateGraph()"></td>
+    <td><input type="number" class="length" oninput="updateGraph()">
+    <td><input type="number" class="q5" oninput="updateGraph()"></td>
+    <td><input type="number" class="q7" oninput="updateGraph()"></td>
+    <td><input type="number" class="q10" oninput="updateGraph()"></td>
+    <td><input type="number" class="q15" oninput="updateGraph()"></td>
+    <td><input type="number" class="q20" oninput="updateGraph()"></td>
+    <td><input type="number" class="qCustom" oninput="updateGraph()"></td>
+    <td class="grade5"></td>
+    <td class="grade7"></td>
+    <td class="grade10"></td>
+    <td class="grade15"></td>
+    <td class="grade20"></td>
+    <td class="gradeCustom"></td>
+    <td><button onclick="removeThisTunnel(this)" class="remove-btn">-</button></td>
+</tr>
+`;
+
+        function addTunnelRow() {
+            const table = document.querySelector('table');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = tunnelRowTemplate;
+            table.appendChild(newRow);
+            tunnelRowCount++;
+            updateGraph();
+        }
+
+        function removeThisTunnel(btn) {
+            const row = btn.closest('tr');
+            row.remove();
+            tunnelRowCount = Math.max(0, tunnelRowCount - 1);
+            updateGraph();
+        }
+
+        // 清空所有输入
+        function clearAllInputs() {
+            document.getElementById('laneCount').value = 2;
+            document.getElementById('openingYear').value = '';
+            document.getElementById('directionCoefficient').value = 0.5;
+            document.querySelectorAll('.traffic-year').forEach(input => input.value = '');
+            document.querySelectorAll('.traffic-forecast').forEach(input => input.value = '');
+            document.querySelectorAll('.name').forEach(input => input.value = '');
+            document.querySelectorAll('.length').forEach(input => input.value = '');
+            document.querySelectorAll('.q5').forEach(input => input.value = '');
+            document.querySelectorAll('.q7').forEach(input => input.value = '');
+            document.querySelectorAll('.q10').forEach(input => input.value = '');
+            document.querySelectorAll('.q15').forEach(input => input.value = '');
+            document.querySelectorAll('.q20').forEach(input => input.value = '');
+            document.querySelectorAll('.qCustom').forEach(input => input.value = '');
+            document.querySelectorAll('.grade5').forEach(elem => elem.textContent = '');
+            document.querySelectorAll('.grade7').forEach(elem => elem.textContent = '');
+            document.querySelectorAll('.grade10').forEach(elem => elem.textContent = '');
+            document.querySelectorAll('.grade15').forEach(elem => elem.textContent = '');
+            document.querySelectorAll('.grade20').forEach(elem => elem.textContent = '');
+            document.querySelectorAll('.gradeCustom').forEach(elem => elem.textContent = '');
+            
+            currentCustomYear = '';
+            document.getElementById('qCustomLabel').textContent = '自定义年交通量';
+            
+            updateGraph();
+        }
+        
+        // 粘贴多个预测年数值
+        function pasteMultipleValues(target, values) {
+            if (!values.length) return;
+            
+            const className = target.classList.contains('traffic-year') ? 'traffic-year' : 
+                            target.classList.contains('traffic-forecast') ? 'traffic-forecast' : null;
+            if (!className) return;
+            
+            const allInputs = Array.from(document.querySelectorAll('.' + className));
+            const currentIndex = allInputs.indexOf(target);
+            
+            // 填充值到当前及后续输入框
+            let index = currentIndex;
+            for (let i = 0; i < values.length; i++) {
+                if (index >= allInputs.length) {
+                    addForecastRow();
+                    // 重新获取输入框
+                    const newInputs = Array.from(document.querySelectorAll('.' + className));
+                    allInputs.push(newInputs[newInputs.length - 1]);
+                }
+                allInputs[index].value = values[i];
+                index++;
+            }
+        }
+        
+        // 粘贴多个隧道交通量
+        function pasteMultipleTrafficValues(target, values) {
+            if (!values.length) return;
+            
+            // 获取列类名
+            const classNames = ['q5', 'q7', 'q10', 'q15', 'q20', 'qCustom'];
+            const className = Array.from(target.classList).find(cls => classNames.includes(cls));
+            if (!className) return;
+            
+            const allInputs = Array.from(document.querySelectorAll('.' + className));
+            const currentIndex = allInputs.indexOf(target);
+            
+            // 填充值到当前及后续输入框
+            let index = currentIndex;
+            for (let i = 0; i < values.length; i++) {
+                if (index >= allInputs.length) {
+                    addTunnelRow();
+                    // 重新获取输入框
+                    const newInputs = Array.from(document.querySelectorAll('.' + className));
+                    allInputs.push(newInputs[newInputs.length - 1]);
+                }
+                allInputs[index].value = values[i];
+                index++;
+            }
+        }
+
+        // 页面加载时初始化图形和默认行数
+        window.onload = function () {
+            // 初始化交通量预测输入行数
+            for (let i = 0; i < 5; i++) {
+                addForecastRow();
+            }
+            // 初始化隧道参数输入行数
+            for (let i = 0; i < 5; i++) {
+                addTunnelRow();
+            }
+            updateYearLabels();
+            const tunnels = calculateGrades();
+            drawGraph(tunnels);
+            
+            // 粘贴事件处理
+            document.getElementById('trafficForecastInputs').addEventListener('paste', function(e) {
+                const target = e.target;
+                if (target.classList.contains('traffic-year') || target.classList.contains('traffic-forecast')) {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text/plain');
+                    // 支持多种分隔符：空格、逗号、分号、换行
+                    const values = pasteData.split(/[\s,;，；\n]+/).filter(val => val !== '');
+                    pasteMultipleValues(target, values);
+                    calculateTraffic();
+                }
+            });
+            
+            document.getElementById('mainTable').addEventListener('paste', function(e) {
+                const target = e.target;
+                if (target.classList.contains('q5') || 
+                    target.classList.contains('q7') ||
+                    target.classList.contains('q10') ||
+                    target.classList.contains('q15') ||
+                    target.classList.contains('q20') ||
+                    target.classList.contains('qCustom')) {
+                    
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text/plain');
+                    // 支持多种分隔符：空格、逗号、分号、换行
+                    const values = pasteData.split(/[\s,;，；\n]+/).filter(val => val !== '');
+                    pasteMultipleTrafficValues(target, values);
+                    updateGraph();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
